@@ -6,10 +6,8 @@ if (typeof jQuery == 'undefined') {
 } else {
     jQVersion = jQuery.fn.jquery;
     versionArray = jQVersion.split('.');
-    if (versionArray[1] < 4) {
-        loadJquery();
-    }      
-    runthis();   
+    (versionArray[1] < 4) ? loadJquery() : runthis();     
+       
 }
 
 function loadJquery() {
@@ -26,6 +24,38 @@ function loadJquery() {
     document.getElementsByTagName("head")[0].appendChild(script);
 }
 
+
+/* frame finder */        
+function findFrame(tObj) {            
+    var tempFrame = '';              
+    frame = jQuery("frame");
+    iframe = jQuery('iframe[id^=cafe_main]');          
+    if (frame.length > 0) {
+        // 프레임이다                
+        if(frame[1] == null || frame[1].height == 'undefined' || frame[1].height == 0)
+        {
+            alert(' O_o;\n oops frame site \n we\'ll redirect to the frame url now. \n plz, do again wakua! >_<');
+            for(var i = 0; i < frame.length; i++) {
+                if(frame[i].height > 100)
+                    window.location = frame[i].src;
+            }                  
+        }                               
+    }
+    else if(iframe.length > 0) {  // fucking naver cafe
+        alert('not support yet .. Q.Q');
+        return false;              
+        /*
+        var tempIframe = iframe.contents()
+                            .find('div#main-area').clone();
+                            //.find('embed,object,iframe').remove().end()
+        $(document.body).html(tempIframe.html()).css('border','5px solid red');
+        //*/
+    } 
+}
+
+var transparent_class = {
+	
+};
    
 function runthis() {
 (function($) { 
@@ -34,37 +64,10 @@ function runthis() {
         else {    
             window.document.getElementsByTagName('html')[0].appendChild(document.createElement('body'));
         }
-                
-        function findFrame(tObj) {            
-            var tempFrame = '';              
-            frame = jQuery("frame");
-            iframe = jQuery('iframe[id^=cafe_main]');          
-            if (frame.length > 0) {
-                // 프레임이다                
-                if(frame[1] == null || frame[1].height == 'undefined' || frame[1].height == 0)
-                {
-                    alert(' O_o;\n oops frame site \n we\'ll redirect to the frame url now. \n plz, do again wakua! >_<');
-                    for(var i = 0; i < frame.length; i++) {
-                        if(frame[i].height > 100)
-                            window.location = frame[i].src;
-                    }                  
-                }                               
-            }
-            else if(iframe.length > 0) {  // fucking naver cafe
-                alert('not support yet .. Q.Q');
-                return false;              
-                /*
-                var tempIframe = iframe.contents()
-                                    .find('div#main-area').clone();
-                                    //.find('embed,object,iframe').remove().end()
-                $(document.body).html(tempIframe.html()).css('border','5px solid red');
-                //*/
-            } 
-        }
-        viewFrame = findFrame(self);
         
-        function enableScrap(tFrame) {
-            //$frame.show(500);
+        viewFrame = findFrame(self); // find frame
+        
+        function enableScrap(tFrame) {          
             $('#wakuaFrame').css({'right':'-30px', 'opacity':'0.1', 'display':''}).animate({
                 opacity: 1,
                 right: '+=50px'                
@@ -84,7 +87,9 @@ function runthis() {
                         alert('iframe');
                     } //,iframe[id^=cafe_main]
                                         
-                    $(this).clone().removeAttr('style').removeClass().hide().fadeIn(1000)
+                    $(this).clone().removeClass().removeAttr('style').removeAttr('id')
+                        .children().removeClass().removeAttr('style').removeAttr('id').parent()
+                        .hide().fadeIn(1000)
                         .prependTo("#resultFrame").wrap("<div style='display:block;clear:both; border:2px solid black; padding:5px; margin-bottom:2px;' />");
                         
                     if($('#relFrame').outerHeight(true) > $("#wakuaFrame").outerHeight())
@@ -155,10 +160,10 @@ function runthis() {
             $("<div id='wakuaFrame' style=\"display: none; position:fixed; _position:absolute; top:0px; right: 10px; width: 180px; height:100%; z-index: 99999; margin:0; \" ></div>").appendTo($('body'));            
             $frame = $("#wakuaFrame");  
             $frame.html("\
-                <div id='scrapFrame' style='position:absolute; width:100%; bottom:10px; background-color:rgb(20,20,20); background-color: rgba(0,0,0,.9);border-radius : 10px; -moz-border-radius: 10px; -webkit-border-radius: 10px; padding:10px 0;' >\
-                <div id='wakuaHead' style='height:24px; '>\
-                <div id='optionFrame' style='float:left; padding:3px 0 0 5px; cursor:pointer; text-align:left; font:bold 10px verdana; color:#CCC; width:110px;'><img src='"+ $scrapKua.path +"images/folder_heart.png' id='imgHandle' alt='img_list' /></div>\
-                <div id='xHandle' style='float:left;margin:0;padding:5px 20px 5px 0;text-align:right; font:bold 10px verdana; background:url("+ $scrapKua.path +"images/cross.png) 99% 50% no-repeat; color:#CCC;cursor:pointer;'>CLOSE</div>\
+                <div id='scrapFrame' style='position:absolute; filter:alpha(opacity=90);	-moz-opacity:0.9;	-khtml-opacity: 0.9; opacity: 0.9; width:100%; bottom:10px; background-color:#000; border-radius : 10px; -moz-border-radius: 10px; -webkit-border-radius: 10px; padding:10px 0;' >\
+                <div id='wakuaHead' style='height:24px; z-index:99999;'>\
+                <div id='optionFrame' style='float:left; padding:3px 0 0 5px; text-align:left; font:bold 10px verdana; color:#CCC; width:110px;'><img src='"+ $scrapKua.path +"scrap/images/folder_heart.png' id='imgHandle' alt='get imgList' /></div>\
+                <div id='xHandle' style='float:left;margin:0;padding:5px 20px 5px 0;text-align:right; font:bold 10px verdana; background:url("+ $scrapKua.path +"scrap/images/cross.png) 99% 50% no-repeat; color:#CCC;cursor:pointer;'>CLOSE</div>\
                 </div>\
                 <div id='wakuaLogo' style='display:block; padding:10px 0;  background:url("+ $scrapKua.path +"scrap/images/wakua_logo2.png) 50% 50% no-repeat; color:#CCC; text-align:center; font:bold 12pt verdana; text-indent:-9999px;' >scrap wakua!</div>\
                 <div id='relFrame' style='clear:both;overflow-x:hidden;'>\
@@ -169,14 +174,16 @@ function runthis() {
                 disableScrap(self);                      
             });
             // image lists
-            $('#optionFrame > img').click(function(event) {                
+            $('#optionFrame > img').css('cursor','pointer').click(function(event) {                
                 var $imgs = $('img').removeAttr('style').removeAttr('width').removeAttr('height').removeClass();
+                                                                             
                 $("link[type='text/css'],link[rel='stylesheet'],script,style,noscript").remove();
                 $('body').empty()
                     .html('<style>body{font-family:georgia,sans-serif;text-shadow: 2px 2px 5px #aaa;} img{border:1px solid #CCC; margin:2px;} h2:before {content: "\'";} h2:after {content: "\'";}</style>')
                     .append('<h1 style="color:#CC0033;font-size:60pt;">Image Lists :D</h1>')
                     .append('<h2 style="color:#608E6F; "><a href="'+encodeURI(window.location)+'">' + encodeURI(window.location) + '</a></h2><hr />')
                     .append($imgs)
+                    .append($('#resultFrame').text())
                     .append('<h2 style="text-align:right;">from <a href="http://wakua.com">wakua! </a></h2>');
             });
              
