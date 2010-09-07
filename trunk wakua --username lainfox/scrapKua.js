@@ -53,10 +53,7 @@ function findFrame(tObj) {
     } 
 }
 
-var transparent_class = {
-	
-};
-   
+ 
 function runthis() {
 (function($) { 
     $(function() { 
@@ -76,26 +73,34 @@ function runthis() {
             
             var tempColor = '';
             var tempScript = ''; 
+            var $width;
             
             var wakuaDivMap = {
                 click : function(e){
-                    tempScript = $(this).find('script');
+                    $scrapContent = $(this);
+                    tempScript = $scrapContent.find('script');
                     //alert(tempScript.length);
-                    $(this).find('script').remove();
                     
-                    if($(this).has('iframe[id^=if_]').length > 0) {// daum blog iframe
-                        alert('iframe');
-                    } //,iframe[id^=cafe_main]
-                                        
-                    $(this).clone().removeClass().removeAttr('style').removeAttr('id')
+                    alert('Do it! daum blog iframe !');
+                    
+                    if($scrapContent.has('iframe[id^=if_]').length > 0) {// daum blog iframe
+                        alert('O_o iframe; \nreplace content with iframe')
+                        $scrapContent = $(this).find('iframe[id^=if_]').contents().find('html body');
+                    } //,iframe[id^=cafe_main] -- naver cafe
+                    
+                    //alert($scrapContent.has('iframe[id^=if_]').length);
+                    $scrapContent.find('script').remove();
+                    
+                    ($.browser.msie )? $width = '250%' : $width = '100%';                    
+                    $scrapContent.clone().removeClass().removeAttr('style').removeAttr('id').css('width', $width)
                         .children().removeClass().removeAttr('style').removeAttr('id').parent()
                         .hide().fadeIn(1000)
-                        .prependTo("#resultFrame").wrap("<div style='display:block;clear:both; border:2px solid black; padding:5px; margin-bottom:2px;' />");
+                        .prependTo("#resultFrame").wrap("<div style='display:block;clear:both; border-bottom:10px dashed #CCC; padding:5px 5px 10px 5px; margin-bottom:10px;' />");
                         
-                    if($('#relFrame').outerHeight(true) > $("#wakuaFrame").outerHeight())
+                    if($('#relFrame').outerHeight(true) > $("#wakuaFrame").outerHeight() - 90)
                     { 
                         $("#scrapFrame").css({"height":"94%"});
-                        $("#relFrame").css({"height":"90%","overflow-y":"auto"});
+                        $("#relFrame").css({"height":$('#scrapFrame').height()-80,"overflow-y":"auto"});
                     }
                     //$(this).append(tempScript);                                       
                 },
@@ -129,8 +134,7 @@ function runthis() {
                 if($.isFunction(wakuaDivMap[e.type])) {
                     wakuaDivMap[e.type].call(this, e);
                 }                
-            });
-                  
+            });                  
         }
         function disableScrap(tFrame) 
         {
@@ -157,17 +161,17 @@ function runthis() {
         if ($("#wakuaFrame").length == 0) {
             // create div
             // window.document.getElementsByTagName('body')            
-            $("<div id='wakuaFrame' style=\"display: none; position:fixed; _position:absolute; top:0px; right: 10px; width: 180px; height:100%; z-index: 99999; margin:0; \" ></div>").appendTo($('body'));            
-            $frame = $("#wakuaFrame");  
+            $("<div id='wakuaFrame' style='display: none;'></div>").appendTo($('body'));            
+            $frame = $("#wakuaFrame");              
             $frame.html("\
-                <div id='scrapFrame' style='position:absolute; filter:alpha(opacity=90);	-moz-opacity:0.9;	-khtml-opacity: 0.9; opacity: 0.9; width:100%; bottom:10px; background-color:#000; border-radius : 10px; -moz-border-radius: 10px; -webkit-border-radius: 10px; padding:10px 0;' >\
-                <div id='wakuaHead' style='height:24px; z-index:99999;'>\
-                <div id='optionFrame' style='float:left; padding:3px 0 0 5px; text-align:left; font:bold 10px verdana; color:#CCC; width:110px;'><img src='"+ $scrapKua.path +"scrap/images/folder_heart.png' id='imgHandle' alt='get imgList' /></div>\
-                <div id='xHandle' style='float:left;margin:0;padding:5px 20px 5px 0;text-align:right; font:bold 10px verdana; background:url("+ $scrapKua.path +"scrap/images/cross.png) 99% 50% no-repeat; color:#CCC;cursor:pointer;'>CLOSE</div>\
+                <div id='scrapFrame'>\
+                <div id='wakuaHead'>\
+                    <div id='optionFrame'><img src='"+ $scrapKua.path +"scrap/images/folder_heart.png' id='imgHandle' alt='get imgList' /></div>\
+                    <div id='xHandle'>CLOSE</div>\
                 </div>\
-                <div id='wakuaLogo' style='display:block; padding:10px 0;  background:url("+ $scrapKua.path +"scrap/images/wakua_logo2.png) 50% 50% no-repeat; color:#CCC; text-align:center; font:bold 12pt verdana; text-indent:-9999px;' >scrap wakua!</div>\
-                <div id='relFrame' style='clear:both;overflow-x:hidden;'>\
-                <div id='resultFrame' style='zoom:0.4;display:block; line-height:150%; color:#CCC;'>\
+                <div id='wakuaLogo'><button class='wakua-button'><img src='"+ $scrapKua.path +"scrap/images/wakua_logo2.png' alt='scrap wakua!' /></button></div>\
+                <div id='relFrame'>\
+                <div id='resultFrame'>\
                 </div></div></div>");
                                          
             $("#xHandle").click(function(event) {
@@ -191,7 +195,7 @@ function runthis() {
                 event.preventDefault();                
             });
             
-            enableScrap(viewFrame); // run now
+            enableScrap(viewFrame); // scrapable now
             
             
             document.onkeydown=checkKey; // esc to escape
