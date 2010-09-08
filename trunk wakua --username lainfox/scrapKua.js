@@ -1,6 +1,15 @@
 var viewFrame;
 var isError = null;
 
+String.prototype.escapeHTML = function () {                                        
+    return(                                                                 
+        this.replace(/&/g,'&amp;').                                         
+            replace(/>/g,'&gt;').                                           
+            replace(/</g,'&lt;').                                           
+            replace(/"/g,'&quot;')                                         
+    );                                                                      
+};
+
 if (typeof jQuery == 'undefined') {    
 	loadJquery();    
 } else {
@@ -29,7 +38,6 @@ function loadJquery() {
 function findFrame(tObj) {            
     var tempFrame = '';              
     frame = jQuery("frame");
-    iframe = jQuery('iframe[id^=cafe_main]');          
     if (frame.length > 0) {
         // 프레임이다                
         if(frame[1] == null || frame[1].height == 'undefined' || frame[1].height == 0)
@@ -41,9 +49,12 @@ function findFrame(tObj) {
             }                  
         }                               
     }
-    else if(iframe.length > 0) {  // fucking naver cafe
+    else if(jQuery('iframe[id^=cafe_main]').length > 0) {  // fucking naver cafe
         alert('not support yet .. Q.Q');
-        return false;              
+        $sourceTxt = jQuery('iframe[id^=cafe_main]').contents().find('html body').clone();
+        $sourceTxt.removeAttr('script');
+        document.write('<h1>zz</h1><pre>' + $sourceTxt.html().escapeHTML()  + '</pre>');
+        //return false;              
         /*
         var tempIframe = iframe.contents()
                             .find('div#main-area').clone();
@@ -81,11 +92,9 @@ function runthis() {
                     tempScript = $scrapContent.find('script');
                     //alert(tempScript.length);
                     
-                    alert('Do it! daum blog iframe !');
-                    
-                    if($scrapContent.has('iframe[id^=if_]').length > 0) {// daum blog iframe
+                    if($scrapContent.children('iframe').length > 0) {// daum blog iframe, cyclub
                         alert('O_o iframe; \nreplace content with iframe')
-                        $scrapContent = $(this).find('iframe[id^=if_]').contents().find('html body');
+                        $scrapContent = $(this).find('iframe').contents().find('html body');
                     } //,iframe[id^=cafe_main] -- naver cafe
                     
                     //alert($scrapContent.has('iframe[id^=if_]').length);
@@ -107,8 +116,8 @@ function runthis() {
                 mouseover : function(e) {
                     tempColor = $(this).css('background-color');                    
                     
-                    if($(this).children('iframe[id^=if_]').length > 0) {// daum blog iframe
-                        $(this).css({"background-color":"#FFCBCB"});
+                    if($(this).children('iframe').length > 0) {// iframe
+                        $(this).css({"background-color":"#FFCBCB",'outline':'3px solid red'});                        
                     }
                     else {
                         if($.browser.msie) {
@@ -134,7 +143,8 @@ function runthis() {
                 if($.isFunction(wakuaDivMap[e.type])) {
                     wakuaDivMap[e.type].call(this, e);
                 }                
-            });                  
+            });
+                             
         }
         function disableScrap(tFrame) 
         {
@@ -198,10 +208,26 @@ function runthis() {
             enableScrap(viewFrame); // scrapable now
             
             
+            String.prototype.escapeHTML = function () {                                        
+                return(                                                                 
+                    this.replace(/&/g,'&amp;').                                         
+                        replace(/>/g,'&gt;').                                           
+                        replace(/</g,'&lt;').                                           
+                        replace(/"/g,'&quot;')                                         
+                );                                                                      
+            };
+            
+            
             document.onkeydown=checkKey; // esc to escape
             function checkKey(){
                 if(window.event.keyCode == 27){
                     disableScrap(self);
+                    // 테스트 용 코드. 소스 보기 - esc
+                    var sourceText = window.document.documentElement.innerHTML;
+                    $(sourceText).find('script').remove();
+                    sourceText = sourceText.escapeHTML();
+                    document.write('<h1>zzzz</h1>');
+                    document.write('<div><pre>'+ sourceText +'</pre></div>');    
                     return false;
                 }
             }
