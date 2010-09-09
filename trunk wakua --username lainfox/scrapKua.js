@@ -50,17 +50,17 @@ function findFrame(tObj) {
         }                               
     }
     else if(jQuery('iframe[id^=cafe_main]').length > 0) {  // fucking naver cafe
-        alert('not support yet .. Q.Q');
-        $sourceTxt = jQuery('iframe[id^=cafe_main]').contents().find('html body').clone();
-        $sourceTxt.removeAttr('script');
-        document.write('<h1>zz</h1><pre>' + $sourceTxt.html().escapeHTML()  + '</pre>');
-        //return false;              
-        /*
-        var tempIframe = iframe.contents()
-                            .find('div#main-area').clone();
-                            //.find('embed,object,iframe').remove().end()
-        $(document.body).html(tempIframe.html()).css('border','5px solid red');
-        //*/
+        //alert('not support yet .. Q.Q');
+        $sourceTxt = jQuery('iframe[id^=cafe_main]').contents().find('div[id^=tbody]').clone();
+        
+        (jQuery.browser.msie )? $tempWin = window : $tempWin = window.open("", "scrapWin", "width=800,height=620,scrollBars,menubar, location, status, personalbar,resizable");
+         
+        $body = jQuery('body', $tempWin.document);
+        $body.html('<style>body{font-family:georgia,sans-serif;text-shadow: 2px 2px 5px #aaa;} h2:before {content: "\'";} h2:after {content: "\'";}</style>')
+              .append('<h1 style="margin:1em;">O_o;</h1><h2 style="color:#EBEBEB;margin:1em;">i hate naver cafe & blog and IE - _-;  (not user\'s contents ;p)</h2>')              
+              .append($sourceTxt)              
+              .find('div, a, li, img').removeAttr('onmouseover').removeAttr('onclick').removeAttr('style').removeAttr('onload').removeClass();
+        //console.log('log : ' + $body.html());
     } 
 }
 
@@ -72,7 +72,8 @@ function runthis() {
         else {    
             window.document.getElementsByTagName('html')[0].appendChild(document.createElement('body'));
         }
-        
+       
+             
         viewFrame = findFrame(self); // find frame
         
         function enableScrap(tFrame) {          
@@ -218,7 +219,7 @@ function runthis() {
             };
             
             
-            document.onkeydown=checkKey; // esc to escape
+            //document.onkeydown=checkKey; // esc to escape
             function checkKey(){
                 if(window.event.keyCode == 27){
                     disableScrap(self);
