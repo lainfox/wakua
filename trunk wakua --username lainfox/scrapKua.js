@@ -39,15 +39,16 @@ function findFrame(tObj) {
     var tempFrame = '';              
     frame = jQuery("frame");
     if (frame.length > 0) {
+        
         // 프레임이다                
-        if(frame[1] == null || frame[1].height == 'undefined' || frame[1].height == 0)
-        {
-            alert(' O_o;\n oops frame site \n we\'ll redirect to the frame url now. \n plz, do again wakua! >_<');
-            for(var i = 0; i < frame.length; i++) {
-                if(frame[i].height > 100)
-                    window.location = frame[i].src;
-            }                  
-        }                               
+        //if(frame[1].height == 0 || frame[1] == null || frame[1].height == 'undefined')
+        //{
+        alert(' O_o;\n oops frame site \n we\'ll redirect to the frame url now. \n plz, do again wakua! >_<');
+        for(var i = 0; i < frame.length; i++) {
+            if(frame[i].height > 100)
+                window.location = frame[i].src;
+        }                  
+        //}                               
     }
     else if(jQuery('iframe[id^=cafe_main]').length > 0) {  // fucking naver cafe
         //alert('not support yet .. Q.Q');
@@ -93,7 +94,7 @@ function runthis() {
                     tempScript = $scrapContent.find('script');
                     //alert(tempScript.length);
                     
-                    if($scrapContent.children('iframe').length > 0) {// daum blog iframe, cyclub
+                    if($scrapContent.find('iframe').length > 0) {// daum blog iframe, cyclub
                         alert('O_o iframe; \nreplace content with iframe')
                         $scrapContent = $(this).find('iframe').contents().find('html body');
                     } //,iframe[id^=cafe_main] -- naver cafe
@@ -125,13 +126,13 @@ function runthis() {
                             $(this).css({"background-color":"#DAE9BC"});                            
                         }
                         else {
-                            $(this).css({"background-color":"rgba(210,240,220,0.7)"});    
+                            $(this).css({"background-color":"rgba(210,240,220,0.7)", "outline":"1px solid blue"});    
                         }
                         //$(this).css({"background-color":"#DAE8DB"});                        
                     }
                 },
                 mouseout : function(e) {
-                    $(this).css({"background-color":tempColor});
+                    $(this).css({"background-color":tempColor, "outline":"0"});
                 }
             };            
             
@@ -141,6 +142,10 @@ function runthis() {
                     wakuaDivMap[e.type].call(this, e);
                 }                
             }).end().delegate('table', 'click mouseover mouseout', function(e){
+                if($.isFunction(wakuaDivMap[e.type])) {
+                    wakuaDivMap[e.type].call(this, e);
+                }                
+            }).end().delegate('ul', 'click mouseover mouseout', function(e){
                 if($.isFunction(wakuaDivMap[e.type])) {
                     wakuaDivMap[e.type].call(this, e);
                 }                
@@ -205,7 +210,7 @@ function runthis() {
             $('a').bind('click.killlink',function(event){
                 event.preventDefault();                
             });
-            
+                        
             enableScrap(viewFrame); // scrapable now
             
             
