@@ -42,47 +42,7 @@
     }
     
     
-    /* frame finder */
-    var findFrame = function(tObj){            
-        var tempFrame = '';              
-        frame = jQuery("frame");
-        if (frame.length > 0) {
-            // 프레임이다                
-            //if(frame[1].height == 0 || frame[1] == null || frame[1].height == 'undefined')
-            //{
-            alert(' O_o;\n oops frame site \n we\'ll redirect to the frame url now. \n plz, do again wakua! >_<');
-            for(var i = 0; i < frame.length; i++) {
-                if(frame[i].height > 100)
-                    window.location = frame[i].src;
-            }                  
-            //}                               
-        }
-        else if(jQuery('iframe[id^=cafe_main]').length > 0) {  // fucking naver cafe !
-            $sourceTxt = jQuery('iframe[id^=cafe_main]').contents().find('div[id^=tbody]').clone();
-            (jQuery.browser.msie )? $tempWin = window : $tempWin = window.open("", "scrapWin", "width=800,height=620,scrollBars, resizable");
-             
-            $body = jQuery('body', $tempWin.document);
-            $body.html('<style>body{font-family:georgia,sans-serif;text-shadow: 1px 1px 5px #aaa;} h2:before {content: "\'";} h2:after {content: "\'";}</style>')
-                  .append('<h1 style="margin:.5em;">O_o;</h1><h2 style="color:#EBEBEB;margin:.5em;">i hate naver cafe & blog and IE - _-;  (not user\'s contents ;p)</h2>')                                
-                  .append($sourceTxt)                                
-                  .find('div, a, li, img').removeAttr('onmouseover').removeAttr('onclick').removeAttr('style').removeAttr('onload').removeClass();
-            var cssNode = document.createElement('link');
-            cssNode.type = 'text/css';    
-            cssNode.rel = 'stylesheet';
-            cssNode.media = 'screen';
-            cssNode.href = window.$scrapKua.path + 'scrap/scrapKua.css';    
-            $tempWin.document.getElementsByTagName('head')[0].appendChild(cssNode)
-            var jsNode = document.createElement('script');
-            jsNode.type = 'text/javascript'; 
-            jsNode.charset = 'utf-8'; 
-            jsNode.src = $scrapKua.path + 'scrap/scrapKua.js?rand=' + encodeURIComponent(Math.random());            
-            $tempWin.document.getElementsByTagName('head')[0].appendChild(jsNode);
-            
-            if(jQuery.browser.msie ) {alert('damn IE - _-;');}            
-        } 
-    }
     
-     
     function runthis() {
     (function($) { 
         $(function() { 
@@ -91,7 +51,7 @@
                 window.document.getElementsByTagName('html')[0].appendChild(document.createElement('body'));
             }
            
-            function enableScrap(tFrame) {          
+            function enableScrap() {          
                 $('#wakuaFrame').css({'right':'-30px', 'opacity':'0.1', 'display':''}).animate({
                     opacity: 1,
                     right: '+=50px'                
@@ -166,7 +126,7 @@
                 });
                                  
             }
-            function disableScrap(tFrame) 
+            function disableScrap() 
             {
                 $('body').undelegate();
                 $('a').unbind('.killlink');
@@ -187,7 +147,48 @@
                         $(this).remove();                    
                 });
             }
-          
+            
+            /* frame finder */
+            var findFrame = function(tObj){            
+                var tempFrame = '';              
+                frame = jQuery("frame");
+                if (frame.length > 0) {
+                    // 프레임이다                
+                    //if(frame[1].height == 0 || frame[1] == null || frame[1].height == 'undefined')
+                    //{
+                    alert(' O_o;\n oops frame site \n we\'ll redirect to the frame url now. \n plz, do again wakua! >_<');
+                    for(var i = 0; i < frame.length; i++) {
+                        if(frame[i].height > 100)
+                            window.location = frame[i].src;
+                    }                  
+                    //}                               
+                }
+                else if(jQuery('iframe[id^=cafe_main]').length > 0) {  // fucking naver cafe !
+                    $sourceTxt = jQuery('iframe[id^=cafe_main]').contents().find('div[id^=tbody]').clone();
+                    (jQuery.browser.msie )? $tempWin = window : $tempWin = window.open("", "scrapWin", "width=800,height=620,scrollBars, resizable");
+                     
+                    $body = jQuery('body', $tempWin.document);
+                    $body.html('<style>body{font-family:georgia,sans-serif;text-shadow: 1px 1px 5px #aaa;} h2:before {content: "\'";} h2:after {content: "\'";}</style>')
+                          .append('<h1 style="margin:.5em;">O_o;</h1><h2 style="color:#EBEBEB;margin:.5em;">i hate naver cafe & blog and IE - _-;  (not user\'s contents ;p)</h2>')                                
+                          .append($sourceTxt)                                
+                          .find('div, a, li, img').removeAttr('onmouseover').removeAttr('onclick').removeAttr('style').removeAttr('onload').removeClass();
+                    var cssNode = document.createElement('link');
+                    cssNode.type = 'text/css';    
+                    cssNode.rel = 'stylesheet';
+                    cssNode.media = 'screen';
+                    cssNode.href = window.$scrapKua.path + 'scrap/scrapKua.css';    
+                    $tempWin.document.getElementsByTagName('head')[0].appendChild(cssNode)
+                    var jsNode = document.createElement('script');
+                    jsNode.type = 'text/javascript'; 
+                    jsNode.charset = 'utf-8'; 
+                    jsNode.src = $scrapKua.path + 'scrap/scrapKua.js?rand=' + encodeURIComponent(Math.random());            
+                    $tempWin.document.getElementsByTagName('head')[0].appendChild(jsNode);
+                    
+                    if(jQuery.browser.msie ) {alert('damn IE - _-;');}            
+                } 
+            };
+            
+            
             if ($("#wakuaFrame").length == 0) {
                 // create div
                 // window.document.getElementsByTagName('body')            
@@ -225,8 +226,8 @@
                     event.preventDefault();                
                 });
                 
-                            
-                enableScrap(findFrame(self)); // scrapable now
+                findFrame(self);            
+                enableScrap(); // scrapable now
                                                 
                 //document.onkeydown=checkKey; // esc to escape
                 
