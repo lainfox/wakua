@@ -19,6 +19,9 @@
             return false;
         }
     }
+    Array.prototype.max = function() {
+        return Math.max.apply(null, this);
+    };
     
     if (typeof jQuery == 'undefined') {    
     	loadJquery();    
@@ -44,13 +47,35 @@
     
     
     function runthis() {
-    (function($) { 
+        (function($) { 
         $(function() { 
             if (window.document.getElementsByTagName('body').length > 0);
             else {    
                 window.document.getElementsByTagName('html')[0].appendChild(document.createElement('body'));
             }
-           
+            
+            function doScrap($scrapContent, iframe) { // click content - scrap it!                
+                if($scrapContent.find('iframe').length > 0) {// daum blog iframe, cyclub
+                    alert('O_o iframe; \nreplace content with iframe')
+                    $scrapContent = $scrapContent.find('iframe[height!=0]').contents().find('html body');
+                } //,iframe[id^=cafe_main] -- naver cafe
+                
+                $scrapContent.find('script').remove();
+                
+                ($.browser.msie )? $width = '250%' : $width = '100%';    // IE = 250% zoom = 0.4                
+                $scrapContent.clone().removeClass().removeAttr('style').removeAttr('id').css('width', $width)
+                    .children().removeClass().removeAttr('style').removeAttr('id').parent()
+                    .hide().fadeIn(1000)
+                    .prependTo("#resultFrame").wrap("<div style='display:block;clear:both; border-bottom:10px dashed #CCC; padding:5px 5px 10px 5px; margin-bottom:10px;' />");
+                    
+                if($('#relFrame').outerHeight(true) > $("#wakuaFrame").outerHeight() - 90)
+                { 
+                    $("#scrapFrame").css({"height":"94%"});
+                    $("#relFrame").css({"height":$('#scrapFrame').height()-80,"overflow-y":"auto"});
+                }
+            }
+            
+             
             function enableScrap() {          
                 $('#wakuaFrame').css({'right':'-30px', 'opacity':'0.1', 'display':''}).animate({
                     opacity: 1,
@@ -58,51 +83,28 @@
                     }, 500
                 );
                 
-                var tempColor = '';
-                var tempScript = ''; 
+                var tempColor = '';                 
                 var $width;
-                
+                                
                 var wakuaDivMap = {
                     click : function(e){
-                        $scrapContent = $(this);
-                        tempScript = $scrapContent.find('script');
-                        //alert(tempScript.length);
-                        
-                        if($scrapContent.find('iframe').length > 0) {// daum blog iframe, cyclub
-                            alert('O_o iframe; \nreplace content with iframe')
-                            $scrapContent = $(this).find('iframe').contents().find('html body');
-                        } //,iframe[id^=cafe_main] -- naver cafe
-                        
-                        //alert($scrapContent.has('iframe[id^=if_]').length);
-                        $scrapContent.find('script').remove();
-                        
-                        ($.browser.msie )? $width = '250%' : $width = '100%';                    
-                        $scrapContent.clone().removeClass().removeAttr('style').removeAttr('id').css('width', $width)
-                            .children().removeClass().removeAttr('style').removeAttr('id').parent()
-                            .hide().fadeIn(1000)
-                            .prependTo("#resultFrame").wrap("<div style='display:block;clear:both; border-bottom:10px dashed #CCC; padding:5px 5px 10px 5px; margin-bottom:10px;' />");
-                            
-                        if($('#relFrame').outerHeight(true) > $("#wakuaFrame").outerHeight() - 90)
-                        { 
-                            $("#scrapFrame").css({"height":"94%"});
-                            $("#relFrame").css({"height":$('#scrapFrame').height()-80,"overflow-y":"auto"});
-                        }
-                        //$(this).append(tempScript);                                       
+                        // scrap
+                        doScrap($(this));                                                               
                     },
                     mouseover : function(e) {
                         tempColor = $(this).css('background-color');                    
                         
                         if($(this).children('iframe').length > 0) {// iframe
-                            $(this).css({"background-color":"#FFCBCB",'outline':'3px solid red'});                        
+                            $(this).css({"background-color":"#FFCBCB",'outline':'3px solid red'})
+                                .children('iframe').css({"background-color":"#ECECEC",'outline':'3px solid #CCC'})
                         }
                         else {
-                            if($.browser.msie) {
-                                $(this).css({"background-color":"#DAE9BC"});                            
+                            if($.browser.msie) { // IE
+                                $(this).css({"background-color":"#DAE9BC","border":"1px solid #AFD5B5"});                            
                             }
-                            else {
-                                $(this).css({"background-color":"rgba(210,240,220,0.7)", "outline":"1px solid blue"});    
-                            }
-                            //$(this).css({"background-color":"#DAE8DB"});                        
+                            else { // Standard
+                                $(this).css({"background-color":"rgba(210,240,220,0.7)", "outline":"1px solid #AFD5B5"});    
+                            }                
                         }
                     },
                     mouseout : function(e) {
@@ -110,36 +112,21 @@
                     }
                 };            
                 
-                //$("div:not('#wakuaFrame, #wakuaFrame div'), table")                        
-                $('body').delegate('div:not("#wakuaFrame, #wakuaFrame div")', 'click mouseover mouseout', function(e){
+                // setting div, table, ul tag
+                $('body').delegate('div, table, ul', 'click mouseover mouseout', function(e){
                     if($.isFunction(wakuaDivMap[e.type])) {
-                        wakuaDivMap[e.type].call(this, e);
+                        //if(this.id == 'wakuaFrame' || this.parent());
+                        if ( $(this).is('#wakua, #wakuaFrame div'));
+                        else wakuaDivMap[e.type].call(this, e);
                     }                
-                }).end().delegate('table', 'click mouseover mouseout', function(e){
-                    if($.isFunction(wakuaDivMap[e.type])) {
-                        wakuaDivMap[e.type].call(this, e);
-                    }                
-                }).end().delegate('ul', 'click mouseover mouseout', function(e){
-                    if($.isFunction(wakuaDivMap[e.type])) {
-                        wakuaDivMap[e.type].call(this, e);
-                    }                
-                });
-                                 
+                })                         
             }
+            
             function disableScrap() 
             {
                 $('body').undelegate();
                 $('a').unbind('.killlink');
-                /*
-                $('#wakuaFrame').hide('drop', {direction:'right'},500, function(){
-                    $(this).remove();
-                });
-               
-                 
-                $('#wakuaFrame').hide(500,function(){
-                    $(this).remove();
-                });
-                 */
+                
                 $('#wakuaFrame').animate({
                     opacity: 0.1,
                     right: '-=50px'                
@@ -157,8 +144,12 @@
                     //if(frame[1].height == 0 || frame[1] == null || frame[1].height == 'undefined')
                     //{
                     alert(' O_o;\n oops frame site \n we\'ll redirect to the frame url now. \n plz, do again wakua! >_<');
-                    for(var i = 0; i < frame.length; i++) {
-                        if(frame[i].height > 100)
+                    
+                    var frameArray = $('frameset').attr('rows').replace(/%/g,'').split(',');
+                    var realFrame = frameArray.max();                 
+                                     
+                    for(var i = 0; i < frameArray.length; i++) {
+                        if(frameArray[i] == '*' || frameArray[i] == realFrame) 
                             window.location = frame[i].src;
                     }                  
                     //}                               
