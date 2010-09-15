@@ -13,7 +13,7 @@
 
     #optionFrame {float:left; padding:3px 0 0 5px; text-align:left; font:bold 10px verdana; color:#CCC; width:110px;}
     #xHandle {float:left;margin:0;padding:5px 20px 5px 0;text-align:right; font:bold 10px verdana; 
-        background:url('http://localhost/scrap/images/cross.png') 99% 50% no-repeat; color:#CCC;cursor:pointer;}
+        background:url('http://wakua.com/scrap/images/cross.png') 99% 50% no-repeat; color:#CCC;cursor:pointer;}
 
 #wakuaLogo {display:block; padding:10px 0; font:bold 12pt verdana; text-align:center;}
 #relFrame {clear:both;overflow-x:hidden;}

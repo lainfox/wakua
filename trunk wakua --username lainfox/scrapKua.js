@@ -9,13 +9,7 @@
     };
     function checkKey(){
         if(window.event.keyCode == 27){
-            disableScrap(self);
-            // 테스트 용 코드. 소스 보기 - esc
-            var sourceText = window.document.documentElement.innerHTML;
-            $(sourceText).find('script').remove();
-            sourceText = sourceText.escapeHTML();
-            document.write('<h1>zzzz</h1>');
-            document.write('<div><pre>'+ sourceText +'</pre></div>');    
+            disableScrap(self);            
             return false;
         }
     }
@@ -44,26 +38,21 @@
         document.getElementsByTagName("head")[0].appendChild(script);
     }
     
-    
-    
     function runthis() {
         (function($) { 
         $(function() { 
-            if (window.document.getElementsByTagName('body').length > 0);
-            else {    
-                window.document.getElementsByTagName('html')[0].appendChild(document.createElement('body'));
-            }
             
-            function doScrap($scrapContent, iframe) { // click content - scrap it!                
-                if($scrapContent.find('iframe').length > 0) {// daum blog iframe, cyclub
-                    alert('O_o iframe; \nreplace content with iframe')
-                    $scrapContent = $scrapContent.find('iframe[height!=0]').contents().find('html body');
+            // click content - scrap it!
+            function doScrap($scrapContent) {                 
+                if($scrapContent.find('iframe').length > 0) {// find iframe and replace contents of iframe with tag, daum blog cyclub ,etc                    
+                    $scrapContent.find('iframe').replaceWith($(this).contents().find('html body'));
+                    //$scrapContent = $scrapContent.find('iframe[height!=0]').contents().find('html body');
                 } //,iframe[id^=cafe_main] -- naver cafe
                 
                 $scrapContent.find('script').remove();
                 
                 ($.browser.msie )? $width = '250%' : $width = '100%';    // IE = 250% zoom = 0.4                
-                $scrapContent.clone().removeClass().removeAttr('style').removeAttr('id').css('width', $width)
+                $scrapContent.removeClass().removeAttr('style').removeAttr('id').css('width', $width)
                     .children().removeClass().removeAttr('style').removeAttr('id').parent()
                     .hide().fadeIn(1000)
                     .prependTo("#resultFrame").wrap("<div style='display:block;clear:both; border-bottom:10px dashed #CCC; padding:5px 5px 10px 5px; margin-bottom:10px;' />");
@@ -89,7 +78,7 @@
                 var wakuaDivMap = {
                     click : function(e){
                         // scrap
-                        doScrap($(this));                                                               
+                        doScrap($(this).clone());                                                               
                     },
                     mouseover : function(e) {
                         tempColor = $(this).css('background-color');                    
@@ -108,7 +97,12 @@
                         }
                     },
                     mouseout : function(e) {
-                        $(this).css({"background-color":tempColor, "outline":"0"});
+                        if($.browser.msie) { // IE
+                            $(this).css({"background-color":tempColor, "border":"0"});                       
+                        }
+                        else { // Standard
+                            $(this).css({"background-color":tempColor, "outline":"0"});   
+                        }
                     }
                 };            
                 
@@ -116,7 +110,7 @@
                 $('body').delegate('div, table, ul', 'click mouseover mouseout', function(e){
                     if($.isFunction(wakuaDivMap[e.type])) {
                         //if(this.id == 'wakuaFrame' || this.parent());
-                        if ( $(this).is('#wakua, #wakuaFrame div'));
+                        if ( $(this).is('#wakua, #wakuaFrame *'));
                         else wakuaDivMap[e.type].call(this, e);
                     }                
                 })                         
@@ -136,23 +130,22 @@
             }
             
             /* frame finder */
-            var findFrame = function(tObj){            
-                var tempFrame = '';              
+            var findFrame = function(tObj){  
                 frame = jQuery("frame");
-                if (frame.length > 0) {
-                    // 프레임이다                
-                    //if(frame[1].height == 0 || frame[1] == null || frame[1].height == 'undefined')
-                    //{
+                if (frame.length > 0) {                    
                     alert(' O_o;\n oops frame site \n we\'ll redirect to the frame url now. \n plz, do again wakua! >_<');
                     
-                    var frameArray = $('frameset').attr('rows').replace(/%/g,'').split(',');
+                    var rowsArray = $('frameset').attr('rows').replace(/%/g,'').split(',');
+                    var colsArray = $('frameset').attr('cols').replace(/%/g,'').split(',');
+                    
+                    var frameArray = (rowsArray == null || rowsArray == '') ? colsArray : rowsArray;
+                    console.log(frameArray);
                     var realFrame = frameArray.max();                 
                                      
                     for(var i = 0; i < frameArray.length; i++) {
                         if(frameArray[i] == '*' || frameArray[i] == realFrame) 
                             window.location = frame[i].src;
-                    }                  
-                    //}                               
+                    }                         
                 }
                 else if(jQuery('iframe[id^=cafe_main]').length > 0) {  // fucking naver cafe !
                     $sourceTxt = jQuery('iframe[id^=cafe_main]').contents().find('div[id^=tbody]').clone();
@@ -217,10 +210,12 @@
                     event.preventDefault();                
                 });
                 
-                findFrame(self);            
-                enableScrap(); // scrapable now
+                
+                findFrame(self); // check frame site
+                        
+                enableScrap(); // scrapable now - div
                                                 
-                //document.onkeydown=checkKey; // esc to escape
+                document.onkeydown=checkKey; // esc to escape
                 
                 
             } else {disableScrap(self);}
