@@ -16,6 +16,10 @@
     Array.prototype.max = function() {
         return Math.max.apply(null, this);
     };
+    String.prototype.trim = function() {
+        return this.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+        //return this.replace(/^\s+|\s+$/g,"");
+    };
     
     if (typeof jQuery == 'undefined') {    
     	loadJquery();    
@@ -110,7 +114,7 @@
                 $('body').delegate('div, table, ul', 'click mouseover mouseout', function(e){
                     if($.isFunction(wakuaDivMap[e.type])) {
                         //if(this.id == 'wakuaFrame' || this.parent());
-                        if ( $(this).is('#wakua, #wakuaFrame *'));
+                        if ( $(this).is('#wakuaFrame, #wakuaFrame *'));
                         else wakuaDivMap[e.type].call(this, e);
                     }                
                 })                         
@@ -139,7 +143,11 @@
                     var colsArray = $('frameset').attr('cols').replace(/%/g,'').split(',');
                     
                     var frameArray = (rowsArray == null || rowsArray == '') ? colsArray : rowsArray;
-                    console.log(frameArray);
+                    for(var i = 0; i < frameArray.length; i++) {// trim
+                        frameArray[i] = frameArray[i].trim();
+                    }                    
+                    //console.log(frameArray);
+                    
                     var realFrame = frameArray.max();                 
                                      
                     for(var i = 0; i < frameArray.length; i++) {
@@ -156,33 +164,71 @@
                           .append('<h1 style="margin:.5em;">O_o;</h1><h2 style="color:#EBEBEB;margin:.5em;">i hate naver cafe & blog and IE - _-;  (not user\'s contents ;p)</h2>')                                
                           .append($sourceTxt)                                
                           .find('div, a, li, img').removeAttr('onmouseover').removeAttr('onclick').removeAttr('style').removeAttr('onload').removeClass();
-                    var cssNode = document.createElement('link');
-                    cssNode.type = 'text/css';    
-                    cssNode.rel = 'stylesheet';
-                    cssNode.media = 'screen';
-                    cssNode.href = window.$scrapKua.path + 'scrap/scrapKua.css';    
-                    $tempWin.document.getElementsByTagName('head')[0].appendChild(cssNode)
-                    var jsNode = document.createElement('script');
-                    jsNode.type = 'text/javascript'; 
-                    jsNode.charset = 'utf-8'; 
-                    jsNode.src = $scrapKua.path + 'scrap/scrapKua.js?rand=' + encodeURIComponent(Math.random());            
-                    $tempWin.document.getElementsByTagName('head')[0].appendChild(jsNode);
                     
+                    doAgainWakua($tempWin);
                     if(jQuery.browser.msie ) {alert('damn IE - _-;');}            
                 } 
             };
             
+            // again! running application
+            var doAgainWakua = function(targetWindow) {
+                if(targetWindow == null || targetWindow == '') targetWindow = window; 
+                var cssNode = document.createElement('link');
+                cssNode.type = 'text/css';    
+                cssNode.rel = 'stylesheet';
+                cssNode.media = 'screen';
+                cssNode.href = window.$scrapKua.path + 'scrap/scrapKua.css';    
+                targetWindow.document.getElementsByTagName('head')[0].appendChild(cssNode)
+                var jsNode = document.createElement('script');
+                jsNode.type = 'text/javascript'; 
+                jsNode.charset = 'utf-8'; 
+                jsNode.src = $scrapKua.path + 'scrap/scrapKua.js?rand=' + encodeURIComponent(Math.random());            
+                targetWindow.document.getElementsByTagName('head')[0].appendChild(jsNode);
+            }
+            
+            var imgList = function() {    
+                
+                var $imgs = $('img').each(function(){
+                    $(this).attr("onClick", 'document.getElementById("AXframe").style.height = "'+ ($(this).height()+90) +'px"; document.getElementById("AXframe").style.border = "solid red 1px"; document.f.url.value="'+ $(this).get(0).src +'";document.f.submit(); return false;')
+                        .removeAttr('style').removeAttr('width').removeAttr('height').removeClass().removeAttr('url').attr('alt',$(this).attr("src"))                   
+                        .css('cursor','pointer');
+                });
+                
+                //console.log($imgs[0]);
+
+                $("link[type='text/css'],link[rel='stylesheet'],script,style,noscript").remove();
+                $('body').empty()
+                    .html('<style>body{font-family:georgia,sans-serif;text-shadow: 2px 2px 5px #aaa;} img{margin:2px;} h2:before {content: "\'";} h2:after {content: "\'";}</style>')
+                    .append('<h1 style="color:#CC0033;font-size:60pt;">Image Lists :D</h1>')
+                    .append('<h2 style="color:#608E6F; "><a href="'+encodeURI(window.location)+'">' + encodeURI(window.location) + '</a></h2><hr />')
+                    .append("\
+                        <form action='http://wakua.com/scrap/cap.php' name='f' target='AXframe' method='get' enctype='multipart/form-data'>\
+                        <input type='hidden' name='url' /></form>\
+                        <div style='text-align:center;'><iframe id='AXframe' style='width:95%;height:0;border:0;' name='AXframe'></iframe></div>")
+                    .append($imgs)
+                    .append('<hr />' + $('#resultFrame').text())
+                    .append('<h2 style="text-align:center;">from <a href="http://wakua.com">wakua! </a></h2>');
+                
+                    
+                //doAgainWakua();
+                disableScrap(self);
+            }
+            
+            
+            
             
             if ($("#wakuaFrame").length == 0) {
-                // create div
-                // window.document.getElementsByTagName('body')            
+                // create wakuaFrame Div
                 $("<div id='wakuaFrame' style='display: none;'></div>").appendTo($('body'));            
                 $frame = $("#wakuaFrame");              
                 $frame.html("\
                     <div id='scrapFrame'>\
                     <div id='wakuaHead'>\
-                        <div id='optionFrame'><img src='http://wakua.com/scrap/images/folder_heart.png' id='imgHandle' alt='get imgList' /></div>\
+                        <div id='optionHandle' title='option panel'>OPT</div>\
                         <div id='xHandle'>CLOSE</div>\
+                        <div id='optionPanel'>\
+                            <button class='optionBtn' id='icoImage' ><image src='http://wakua.com/scrap/images/image.png' title='image list' alt='image list' /><br />IMG</button>\
+                        </div>\
                     </div>\
                     <div id='wakuaLogo'><button class='wakua-button'><img src='http://wakua.com/scrap/images/wakua_logo2.png' alt='scrap wakua!' /></button></div>\
                     <div id='relFrame'>\
@@ -192,20 +238,24 @@
                 $("#xHandle").click(function(event) {
                     disableScrap(self);                      
                 });
+                
+                                
                 // image lists
-                $('#optionFrame > img').css('cursor','pointer').click(function(event) {                
-                    var $imgs = $('img').removeAttr('style').removeAttr('width').removeAttr('height').removeClass();
-                                                                                 
-                    $("link[type='text/css'],link[rel='stylesheet'],script,style,noscript").remove();
-                    $('body').empty()
-                        .html('<style>body{font-family:georgia,sans-serif;text-shadow: 2px 2px 5px #aaa;} img{border:1px solid #CCC; margin:2px;} h2:before {content: "\'";} h2:after {content: "\'";}</style>')
-                        .append('<h1 style="color:#CC0033;font-size:60pt;">Image Lists :D</h1>')
-                        .append('<h2 style="color:#608E6F; "><a href="'+encodeURI(window.location)+'">' + encodeURI(window.location) + '</a></h2><hr />')
-                        .append($imgs)
-                        .append($('#resultFrame').text())
-                        .append('<h2 style="text-align:right;">from <a href="http://wakua.com">wakua! </a></h2>');
+                $('#optionHandle').siblings('#optionPanel').hide().end().toggle(
+                    function () {
+                        $(this).siblings('#optionPanel').show('fast');
+                    },
+                    function () {
+                      $(this).siblings('#optionPanel').hide('fast');
+                    }
+                );
+                
+                $('#icoImage').click(function(e){
+                    $(this).children('img').attr('src','http://wakua.com/scrap/images/ajax-loader.gif').attr('width','16');
+                    imgList();
                 });
-                 
+                                
+                                 
                 $('a').bind('click.killlink',function(event){
                     event.preventDefault();                
                 });
@@ -278,7 +328,7 @@ $scrap = $('#scrapContent', $body);
 var form = $('form[name=scrapKuaForm]', $body); 
 form.submit(function(){
     $input = $('#scrapValue',$body);
-    $input.val( escape( $scrap.html()) ); // 값 셋팅
+    $input.val( escape( $scrap.html()) ); // �??�팅
     
     if($input.val().length == 0) { 
         alert('nothing!'); 

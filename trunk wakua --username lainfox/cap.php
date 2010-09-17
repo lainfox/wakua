@@ -1,3 +1,9 @@
+<style>
+    body {background: #FFFFFF; font:9pt solid verdana; color:black;}
+    img {border:1px solid silver; margin-bottom:4px;}
+    input {width:80%; text-align:center; }
+</style>
+
 <?php
 require_once('imageshack.class.php');
 
@@ -6,12 +12,23 @@ require_once('imageshack.class.php');
 //key 1: 146CDGJY4ab039507779ef6e0ec281c181c678e7
 //key 2: 19BCGIQY18e728ba16638ba63d8969f645139bb3
 
+$imgUrl = $_REQUEST['url'];
 
 $img = new imageShack;
-$img->setURL('http://www.nemopan.com/pan_star/845311/page/files/attach/images/6295/311/845/7.jpg');
-$img->main();
+$img->setURL($imgUrl);
+$captura = $img->getSrc();
 
+//print_r($captura);
+
+echo "<div style='text-align:center'>";
+echo "<img src='" . $captura[1][0] ."' alt='". $captura[1][0]."' /><br />";
+echo "<input type='text' onclick='this.select()' value='". $captura[1][0] ."' /><br />";
+echo "<input type='text' onclick='this.select()' value='&lt;img src=\"" . $captura[1][0] ."\" alt=\"". $captura[1][0]."\" /&gt;' /><br />";
+//echo '<script>prompt("Uploaded image complete! - copy this URL >_<","'.$captura[1][0].'")</script>';
+echo "</div>";  
 ?>
+
+
 <?php
 /*
 //echo $_SERVER['HTTP_USER_AGENT']; 
@@ -26,7 +43,6 @@ echo "</pre>";
 ?>
 
 
-<hr />
 
 <script>
 
