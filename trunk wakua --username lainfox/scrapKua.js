@@ -7,12 +7,14 @@
                 replace(/"/g,'&quot;')                                         
         );                                                                      
     };
+    /*
     function checkKey(){
         if(window.event.keyCode == 27){
             disableScrap(self);            
             return false;
         }
     }
+    //*/
     Array.prototype.max = function() {
         return Math.max.apply(null, this);
     };
@@ -44,18 +46,28 @@
     
     function runthis() {
         (function($) { 
-        $(function() { 
-            
+        $(function() {             
             // click content - scrap it!
-            function doScrap($scrapContent) {                 
+            function doScrap($obj) {
+                $scrapContent = $obj.clone();
+                
                 if($scrapContent.find('iframe').length > 0) {// find iframe and replace contents of iframe with tag, daum blog cyclub ,etc                    
-                    $scrapContent.find('iframe').replaceWith($(this).contents().find('html body'));
-                    //$scrapContent = $scrapContent.find('iframe[height!=0]').contents().find('html body');
-                } //,iframe[id^=cafe_main] -- naver cafe
+                    $scrapContent.find('iframe').each(function(){
+                        if( $(this).get(0).id == '' || $(this).get(0).id == null || $(this).get(0).src == null || $(this).get(0).src  == '' || $(this).get(0).src  == 'about:blank'  ) {}
+                        else {                            
+                            var $f = $("#" + $(this).get(0).id, $scrapContent.document);                                                      
+                            var fd = $f[0].document || $f[0].contentWindow.document; // document of iframe                            
+                            $(this).replaceWith($(fd).find('html body').clone());
+                        }
+                    });                    
+                } 
+                
+                // console.log('scrapContent size : ' + $scrapContent.find('iframe').length + '     original size : ' + $obj.find('iframe').length);
                 
                 $scrapContent.find('script').remove();
                 
-                ($.browser.msie )? $width = '250%' : $width = '100%';    // IE = 250% zoom = 0.4                
+                ($.browser.msie )? $width = '250%' : $width = '100%';    // IE = 250% zoom = 0.4
+                                
                 $scrapContent.removeClass().removeAttr('style').removeAttr('id').css('width', $width)
                     .children().removeClass().removeAttr('style').removeAttr('id').parent()
                     .hide().fadeIn(1000)
@@ -66,6 +78,8 @@
                     $("#scrapFrame").css({"height":"94%"});
                     $("#relFrame").css({"height":$('#scrapFrame').height()-80,"overflow-y":"auto"});
                 }
+                
+                // console.log('iframe ?? ' +  $('#resultFrame').find('iframe').length );              
             }
             
              
@@ -81,14 +95,14 @@
                                 
                 var wakuaDivMap = {
                     click : function(e){
-                        // scrap
+                        // scrap                        
                         doScrap($(this).clone());                                                               
                     },
                     mouseover : function(e) {
                         tempColor = $(this).css('background-color');                    
                         
                         if($(this).children('iframe').length > 0) {// iframe
-                            $(this).css({"background-color":"#FFCBCB",'outline':'3px solid red'})
+                            $(this).css({"background-color":"#FFCBCB",'border':'2px solid red'})
                                 .children('iframe').css({"background-color":"#ECECEC",'outline':'3px solid #CCC'})
                         }
                         else {
@@ -265,7 +279,7 @@
                         
                 enableScrap(); // scrapable now - div
                                                 
-                document.onkeydown=checkKey; // esc to escape
+                //document.onkeydown=checkKey; // esc to escape
                 
                 
             } else {disableScrap(self);}
