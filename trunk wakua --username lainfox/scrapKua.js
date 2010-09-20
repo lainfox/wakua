@@ -46,7 +46,7 @@
     
     function runthis() {
         (function($) { 
-        $(function() {             
+        $(function() { 
             // click content - scrap it!
             function doScrap($obj) {
                 $scrapContent = $obj.clone();
@@ -204,21 +204,24 @@
                 
                 var $imgs = $('img').each(function(){
                     $(this).attr("onClick", 'document.getElementById("AXframe").style.height = "'+ ($(this).height()+90) +'px"; document.getElementById("AXframe").style.border = "solid red 1px"; document.f.url.value="'+ $(this).get(0).src +'";document.f.submit(); return false;')
+                    //$(this).attr("onClick", 'document.getElementById("AXframe").style.height = "'+ ($(this).height()+90) +'px"; document.getElementById("AXframe").style.border = "solid red 1px"; document.f.url.value="'+ $(this).get(0).src +'"; beginUpload("'+ $(this).get(0).src +'"); return false;')
                         .removeAttr('style').removeAttr('width').removeAttr('height').removeClass().removeAttr('url').attr('alt',$(this).attr("src"))                   
                         .css('cursor','pointer');
                 });
                 
                 //console.log($imgs[0]);
-
-                $("link[type='text/css'],link[rel='stylesheet'],script,style,noscript").remove();
+                                
+                $("link[type='text/css'],link[rel='stylesheet'],,style,noscript").remove();
                 $('body').empty()
                     .html('<style>body{font-family:georgia,sans-serif;text-shadow: 2px 2px 5px #aaa;} img{margin:2px;} h2:before {content: "\'";} h2:after {content: "\'";}</style>')
+                    .append('<script type="text/javascript">function beginUpload(src) {alert("uploading.. " + src);$("#uploadprogressbar").fadeIn();var i = setInterval(function() {$.getJSON("http://wakua.com/scrap/cap.php?id=" + "4c96fb3d03652" + "&url=" + src, function(data) {if (data == null) {clearInterval(i);/*location.reload(true);return;*/}var percentage = Math.floor(100 * parseInt(data.bytes_uploaded) / parseInt(data.bytes_total));$("#uploadprogressbar").html(percentage + "zzzz");});}, 1500);}')
                     .append('<h1 style="color:#CC0033;font-size:60pt;">Image Lists :D</h1>')
                     .append('<h2 style="color:#608E6F; "><a href="'+encodeURI(window.location)+'">' + encodeURI(window.location) + '</a></h2><hr />')
                     .append("\
-                        <form action='http://wakua.com/scrap/cap.php' name='f' target='AXframe' method='get' enctype='multipart/form-data'>\
+                        <form action='http://wakua.com/scrap/cap.php' name='f' target='AXframe' method='get' onsubmit='beginUpload();'>\
                         <input type='hidden' name='url' /></form>\
                         <div style='text-align:center;'><iframe id='AXframe' style='width:95%;height:0;border:0;' name='AXframe'></iframe></div>")
+                    .append('<div id="uploadprogressbar" style="display:none;">here</div>')
                     .append($imgs)
                     .append('<hr />' + $('#resultFrame').text())
                     .append('<h2 style="text-align:center;">from <a href="http://wakua.com">wakua! </a></h2>');
