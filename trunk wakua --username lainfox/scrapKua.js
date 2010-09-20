@@ -51,8 +51,8 @@
             function doScrap($obj) {
                 $scrapContent = $obj.clone();
                 
-                if($scrapContent.find('iframe').length > 0) {// find iframe and replace contents of iframe with tag, daum blog cyclub ,etc                    
-                    $scrapContent.find('iframe').each(function(){
+                if($scrapContent.find('iframe').is(':visible').length > 0) {// find iframe and replace contents of iframe with tag, daum blog cyclub ,etc                    
+                    $scrapContent.find('iframe').is(':visible').each(function(){
                         if( $(this).get(0).id == '' || $(this).get(0).id == null || $(this).get(0).src == null || $(this).get(0).src  == '' || $(this).get(0).src  == 'about:blank'  ) {}
                         else {                            
                             var $f = $("#" + $(this).get(0).id, $scrapContent.document);                                                      
@@ -101,9 +101,9 @@
                     mouseover : function(e) {
                         tempColor = $(this).css('background-color');                    
                         
-                        if($(this).children('iframe').length > 0) {// iframe
+                        if($(this).children('iframe').is(':visible').length > 0) {// iframe
                             $(this).css({"background-color":"#FFCBCB",'border':'2px solid red'})
-                                .children('iframe').css({"background-color":"#ECECEC",'outline':'3px solid #CCC'})
+                                .children('iframe').is(':visible').css({"background-color":"#ECECEC",'outline':'3px solid #CCC'})
                         }
                         else {
                             if($.browser.msie) { // IE
