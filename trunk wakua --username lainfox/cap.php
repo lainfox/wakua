@@ -1,3 +1,18 @@
+<?php
+	header("Cache-Control: no-cache, must-revalidate");
+	header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+
+	if (@$_GET['id']) {
+		echo json_encode(uploadprogress_get_info($_REQUEST['id']));
+		exit();
+	}
+
+	if (@$_POST['UPLOAD_IDENTIFIER'])
+		exit();
+	
+	$uuid = uniqid();
+?>
+
 <style>
     body {background: #FFFFFF; font:9pt solid verdana; color:black;}
     img {border:1px solid silver; margin-bottom:4px;}
@@ -27,6 +42,8 @@ echo "<input type='text' onclick='this.select()' value='&lt;img src=\"" . $captu
 //echo '<script>prompt("Uploaded image complete! - copy this URL >_<","'.$captura[1][0].'")</script>';
 echo "</div>";  
 ?>
+
+var progress_key = '<?= $uuid ?>';
 
 
 <?php

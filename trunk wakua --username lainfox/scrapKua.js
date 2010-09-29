@@ -28,7 +28,8 @@
     } else {
         jQVersion = jQuery.fn.jquery;
         versionArray = jQVersion.split('.');
-        (versionArray[1] < 4) ? loadJquery() : runthis();       
+        if(versionArray[1] < 4) loadJquery();
+        else {loadAjaxPlugin();initWakua();}       
     }
     
     function loadJquery() {
@@ -37,18 +38,46 @@
         script.src = "http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js";    
         script.onload = script.onreadystatechange = function(){
             if(!this.readyState || this.readyState=='loaded' || this.readyState=='complete'){
+                loadAjaxPlugin();
                 jQuery.noConflict();
-                runthis();             
+                initWakua();             
             }
         };    
         document.getElementsByTagName("head")[0].appendChild(script);
     }
     
-    function runthis() {
-        (function($) { 
-        $(function() { 
+    function loadAjaxPlugin() {
+        var scriptPlugin = document.createElement('script');
+        scriptPlugin.type = "text/javascript";
+        scriptPlugin.src = "http://github.com/jamespadolsey/jQuery-Plugins/raw/master/cross-domain-ajax/jquery.xdomainajax.js";
+        document.getElementsByTagName("head")[0].appendChild(scriptPlugin);
+    }
+    
+    
+    
+function initWakua() {
+    (function($) { 
+        $(function() { // more code using $ as alias to jQuery
+            
+            // wakua Frame show & hide
+            var showFrame = function(){
+                $('#wakuaFrame').css({'right':'-30px', 'opacity':'0.1', 'display':''}).animate({
+                    opacity: 1,
+                    right: '+=50px'                
+                    }, 500
+                );
+            } 
+            var hideFrame = function() {
+                $('#wakuaFrame').animate({
+                    opacity: 0.1,
+                    right: '-=50px'                
+                    }, 500, function() {
+                        $(this).remove();                    
+                });
+            }
+            
             // click content - scrap it!
-            function doScrap($obj) {
+            var doScrap = function($obj) {
                 $scrapContent = $obj.clone();
                 
                 if($scrapContent.find('iframe').is(':visible').length > 0) {// find iframe and replace contents of iframe with tag, daum blog cyclub ,etc                    
@@ -61,7 +90,6 @@
                         }
                     });                    
                 } 
-                
                 // console.log('scrapContent size : ' + $scrapContent.find('iframe').length + '     original size : ' + $obj.find('iframe').length);
                 
                 $scrapContent.find('script').remove();
@@ -77,18 +105,13 @@
                 { 
                     $("#scrapFrame").css({"height":"94%"});
                     $("#relFrame").css({"height":$('#scrapFrame').height()-80,"overflow-y":"auto"});
-                }
-                
-                // console.log('iframe ?? ' +  $('#resultFrame').find('iframe').length );              
+                }             
             }
             
-             
-            function enableScrap() {          
-                $('#wakuaFrame').css({'right':'-30px', 'opacity':'0.1', 'display':''}).animate({
-                    opacity: 1,
-                    right: '+=50px'                
-                    }, 500
-                );
+            
+            // enable scrap func 
+            var enableScrap = function() {
+                showFrame();
                 
                 var tempColor = '';                 
                 var $width;
@@ -134,22 +157,20 @@
                 })                         
             }
             
-            function disableScrap() 
+            
+            // disable scrap func 
+            var disableScrap = function() 
             {
                 $('body').undelegate();
                 $('a').unbind('.killlink');
-                
-                $('#wakuaFrame').animate({
-                    opacity: 0.1,
-                    right: '-=50px'                
-                    }, 500, function() {
-                        $(this).remove();                    
-                });
+                hideFrame();
             }
+            
+            
             
             /* frame finder */
             var findFrame = function(tObj){  
-                frame = jQuery("frame");
+                frame = $("frame");
                 if (frame.length > 0) {                    
                     alert(' O_o;\n oops frame site \n we\'ll redirect to the frame url now. \n plz, do again wakua! >_<');
                     
@@ -169,22 +190,22 @@
                             window.location = frame[i].src;
                     }                         
                 }
-                else if(jQuery('iframe[id^=cafe_main]').length > 0) {  // fucking naver cafe !
-                    $sourceTxt = jQuery('iframe[id^=cafe_main]').contents().find('div[id^=tbody]').clone();
+                else if($('iframe[id^=cafe_main]').length > 0) {  // fucking naver cafe !
+                    $sourceTxt = $('iframe[id^=cafe_main]').contents().find('div[id^=tbody]').clone();
                     (jQuery.browser.msie )? $tempWin = window : $tempWin = window.open("", "scrapWin", "width=800,height=620,scrollBars, resizable");
                      
-                    $body = jQuery('body', $tempWin.document);
+                    $body = $('body', $tempWin.document);
                     $body.html('<style>body{font-family:georgia,sans-serif;text-shadow: 1px 1px 5px #aaa;} h2:before {content: "\'";} h2:after {content: "\'";}</style>')
                           .append('<h1 style="margin:.5em;">O_o;</h1><h2 style="color:#EBEBEB;margin:.5em;">i hate naver cafe & blog and IE - _-;  (not user\'s contents ;p)</h2>')                                
                           .append($sourceTxt)                                
                           .find('div, a, li, img').removeAttr('onmouseover').removeAttr('onclick').removeAttr('style').removeAttr('onload').removeClass();
                     
                     doAgainWakua($tempWin);
-                    if(jQuery.browser.msie ) {alert('damn IE - _-;');}            
+                    if($.browser.msie ) {alert('damn IE - _-;');}            
                 } 
             };
             
-            // again! running application
+            // again! init running application
             var doAgainWakua = function(targetWindow) {
                 if(targetWindow == null || targetWindow == '') targetWindow = window; 
                 var cssNode = document.createElement('link');
@@ -200,17 +221,13 @@
                 targetWindow.document.getElementsByTagName('head')[0].appendChild(jsNode);
             }
             
-            var imgList = function() {    
-                
+            var imgList = function() {
                 var $imgs = $('img').each(function(){
-                    $(this).attr("onClick", 'document.getElementById("AXframe").style.height = "'+ ($(this).height()+90) +'px"; document.getElementById("AXframe").style.border = "solid red 1px"; document.f.url.value="'+ $(this).get(0).src +'";document.f.submit(); return false;')
-                    //$(this).attr("onClick", 'document.getElementById("AXframe").style.height = "'+ ($(this).height()+90) +'px"; document.getElementById("AXframe").style.border = "solid red 1px"; document.f.url.value="'+ $(this).get(0).src +'"; beginUpload("'+ $(this).get(0).src +'"); return false;')
-                        .removeAttr('style').removeAttr('width').removeAttr('height').removeClass().removeAttr('url').attr('alt',$(this).attr("src"))                   
-                        .css('cursor','pointer');
+                    $(this).css('cursor','pointer').attr("onClick", 'document.getElementById("AXframe").style.height = "'+ ($(this).height()+90) +'px"; document.getElementById("AXframe").style.border = "solid red 1px"; document.f.url.value="'+ $(this).get(0).src +'";document.f.submit(); return false;')                    
+                        .removeAttr('style').removeAttr('width').removeAttr('height').removeClass().removeAttr('url').attr('alt',$(this).attr("src"));                  
+                        
                 });
                 
-                //console.log($imgs[0]);
-                                
                 $("link[type='text/css'],link[rel='stylesheet'],,style,noscript").remove();
                 $('body').empty()
                     .html('<style>body{font-family:georgia,sans-serif;text-shadow: 2px 2px 5px #aaa;} img{margin:2px;} h2:before {content: "\'";} h2:after {content: "\'";}</style>')
@@ -227,13 +244,16 @@
                     .append('<h2 style="text-align:center;">from <a href="http://wakua.com">wakua! </a></h2>');
                 
                     
-                //doAgainWakua();
-                disableScrap(self);
+                doAgainWakua();
+            }
+            
+            var postNow = function() {
+                
             }
             
             
             
-            
+            // create wakuaFrame div 
             if ($("#wakuaFrame").length == 0) {
                 // create wakuaFrame Div
                 $("<div id='wakuaFrame' style='display: none;'></div>").appendTo($('body'));            
@@ -248,16 +268,10 @@
                         </div>\
                     </div>\
                     <div id='wakuaLogo'><button class='wakua-button'><img src='http://wakua.com/scrap/images/wakua_logo2.png' alt='scrap wakua!' /></button></div>\
-                    <div id='relFrame'>\
-                    <div id='resultFrame'>\
-                    </div></div></div>");
+                    <div id='relFrame'><div id='resultFrame'></div></div></div>");
                                              
-                $("#xHandle").click(function(event) {
-                    disableScrap(self);                      
-                });
-                
-                                
-                // image lists
+                                                
+                // option pannel open & close, toggle
                 $('#optionHandle').siblings('#optionPanel').hide().end().toggle(
                     function () {
                         $(this).siblings('#optionPanel').show('fast');
@@ -267,6 +281,8 @@
                     }
                 );
                 
+                
+                // get img lists ;p 
                 $('#icoImage').click(function(e){
                     $(this).children('img').attr('src','http://wakua.com/scrap/images/ajax-loader.gif').attr('width','16');
                     imgList();
@@ -278,18 +294,60 @@
                 });
                 
                 
-                findFrame(self); // check frame site
+                $('button.wakua-button').click(function(e){                    
+                    if( $('#resultFrame').is(':empty') ) {}
+                    else {
                         
-                enableScrap(); // scrapable now - div
+                        var title = escape($('title').text());
+                        var dataUrl = escape(window.location);
+                        var data = escape( jQuery.trim($('#resultFrame').html()).escapeHTML() );
+                        //var data = jQuery.trim($('#resultFrame').html()).escapeHTML();
+                        alert(data);                        
+                        var dataString = "title=" + title + "&dataUrl=" + dataUrl + "&data=" + data;
+                        var url = 'http://localhost/scrap/getScrap.php?' + dataString;
                                                 
-                //document.onkeydown=checkKey; // esc to escape
+                        $.getJSON(url + '&jsoncallback=?',
+                        //$.getJSON('http://api.flickr.com/services/feeds/photos_public.gne?tags=cat&tagmode=any&format=json&jsoncallback=?',                    
+                            function(data){
+                                //var objJSON = eval('(' + jQuery.trim(data) + ')');
+                                $('#resultFrame').html("JSON Data: <br />" + unescape(data.title) + "<br /> success :D");
+                            }
+                        );
+                        /*
+                        jQuery.ajax({
+                            //type    :   'POST',
+                            //dataType:   'json',
+                            url     :   'http://localhost/scrap/getScrap.php',
+                            //data    :   'name=' + 'hello' + '&title' + 'title123',
+                            success :   function(msg) {
+                                alert("data : " + msg + "\nend");
+                            },
+                            error : function(data) {
+                                
+                            }
+                        });
+                        */
+                    }
+                });
                 
+                findFrame(self); // check frame site
+                enableScrap(); // scrapable now - div
                 
-            } else {disableScrap(self);}
+                                
+                $("#xHandle").click(function(event) {
+                    disableScrap();                      
+                });
+                
+            } else {disableScrap();}
+        
+        
+        
         });     // jquery no conflict
     })(jQuery); // jquery no conflict
-    }   // end runthis func
+}   // end initWakua
     
+
+
     
 })() //end script   
     
