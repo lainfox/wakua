@@ -247,8 +247,56 @@ function initWakua() {
                 doAgainWakua();
             }
             
-            var postNow = function() {
-                
+            var postData = function() {
+                if( $('#resultFrame').is(':empty') ) {}
+                else {
+                    
+                    var title = escape($('title').text());
+                    var dataUrl = escape(window.location);
+                    var stringData = escape($('#resultFrame').html().escapeHTML());                                        
+                    
+                    alert(stringData);
+                                        
+                    $('#resultFrame')
+                        .html('<iframe id="AXframe" name="AXframe" style="width:100%; height:50%; border:0;" scrolling="no" ></iframe>')
+                        .append("<form name='scrapKuaForm' id='scrapKuaForm' target='AXframe' action='http://localhost/hello' method='post' />");
+                                        
+                    $("<input type='hidden' id='title' name='title' />").val(title).appendTo('#scrapKuaForm');
+                    $("<input type='hidden' id='dataUrl' name='dataUrl' />").val(dataUrl).appendTo('#scrapKuaForm');
+                    $("<input type='hidden' id='data' name='data' />").val(stringData).appendTo('#scrapKuaForm');
+                        
+                    
+                    if(data == '' || data == null) {
+                        alert('empty data field.');
+                    }
+                    else {                        
+                        $('#scrapKuaForm').submit();
+                    }
+                         
+                    /*                        
+                    $.getJSON(url + '&jsoncallback=?',
+                    //$.getJSON('http://api.flickr.com/services/feeds/photos_public.gne?tags=cat&tagmode=any&format=json&jsoncallback=?',                    
+                        function(data){
+                            //var objJSON = eval('(' + jQuery.trim(data) + ')');
+                            $('#resultFrame').html("JSON Data: <br />" + unescape(data.title) + "<br /> success :D");
+                        }
+                    );
+                    */
+                    /*
+                    jQuery.ajax({
+                        //type    :   'POST',
+                        //dataType:   'json',
+                        url     :   'http://localhost/scrap/getScrap.php',
+                        //data    :   'name=' + 'hello' + '&title' + 'title123',
+                        success :   function(msg) {
+                            alert("data : " + msg + "\nend");
+                        },
+                        error : function(data) {
+                            
+                        }
+                    });
+                    */
+                }
             }
             
             
@@ -258,17 +306,16 @@ function initWakua() {
                 // create wakuaFrame Div
                 $("<div id='wakuaFrame' style='display: none;'></div>").appendTo($('body'));            
                 $frame = $("#wakuaFrame");              
-                $frame.html("\
-                    <div id='scrapFrame'>\
-                    <div id='wakuaHead'>\
-                        <div id='optionHandle' title='option panel'>OPT</div>\
-                        <div id='xHandle'>CLOSE</div>\
-                        <div id='optionPanel'>\
-                            <button class='optionBtn' id='icoImage' ><image src='http://wakua.com/scrap/images/image.png' title='image list' alt='image list' /><br />IMG</button>\
-                        </div>\
-                    </div>\
-                    <div id='wakuaLogo'><button class='wakua-button'><img src='http://wakua.com/scrap/images/wakua_logo2.png' alt='scrap wakua!' /></button></div>\
-                    <div id='relFrame'><div id='resultFrame'></div></div></div>");
+                $frame.html("<div id='scrapFrame'>" + 
+                            "<div id='wakuaHead'>" + 
+                            "<div id='optionHandle' title='option panel'>OPT</div>" + 
+                            "<div id='xHandle'>CLOSE</div>" + 
+                            "<div id='optionPanel'>" + 
+                                "<button class='optionBtn' id='icoImage' ><image src='http://wakua.com/scrap/images/image.png' title='image list' alt='image list' /><br />IMG</button>" + 
+                            "</div>" +
+                        "</div>" +
+                        "<div id='wakuaLogo'><button class='wakua-button'><img src='http://wakua.com/scrap/images/wakua_logo2.png' alt='scrap wakua!' /></button></div>" +
+                        "<div id='relFrame'><div id='resultFrame'></div></div></div>");
                                              
                                                 
                 // option pannel open & close, toggle
@@ -294,41 +341,11 @@ function initWakua() {
                 });
                 
                 
-                $('button.wakua-button').click(function(e){                    
-                    if( $('#resultFrame').is(':empty') ) {}
-                    else {
-                        
-                        var title = escape($('title').text());
-                        var dataUrl = escape(window.location);
-                        var data = escape( jQuery.trim($('#resultFrame').html()).escapeHTML() );
-                        //var data = jQuery.trim($('#resultFrame').html()).escapeHTML();
-                        alert(data);                        
-                        var dataString = "title=" + title + "&dataUrl=" + dataUrl + "&data=" + data;
-                        var url = 'http://localhost/scrap/getScrap.php?' + dataString;
-                                                
-                        $.getJSON(url + '&jsoncallback=?',
-                        //$.getJSON('http://api.flickr.com/services/feeds/photos_public.gne?tags=cat&tagmode=any&format=json&jsoncallback=?',                    
-                            function(data){
-                                //var objJSON = eval('(' + jQuery.trim(data) + ')');
-                                $('#resultFrame').html("JSON Data: <br />" + unescape(data.title) + "<br /> success :D");
-                            }
-                        );
-                        /*
-                        jQuery.ajax({
-                            //type    :   'POST',
-                            //dataType:   'json',
-                            url     :   'http://localhost/scrap/getScrap.php',
-                            //data    :   'name=' + 'hello' + '&title' + 'title123',
-                            success :   function(msg) {
-                                alert("data : " + msg + "\nend");
-                            },
-                            error : function(data) {
-                                
-                            }
-                        });
-                        */
-                    }
+                // send data
+                $('button.wakua-button').click(function(e){
+                    postData();
                 });
+                
                 
                 findFrame(self); // check frame site
                 enableScrap(); // scrapable now - div
